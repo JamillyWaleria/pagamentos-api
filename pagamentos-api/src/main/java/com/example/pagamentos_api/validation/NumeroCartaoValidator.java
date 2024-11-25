@@ -9,7 +9,7 @@ public class NumeroCartaoValidator implements ConstraintValidator<NumeroCartaoVa
     @Override
     public boolean isValid(PagamentoRequest request, ConstraintValidatorContext context) {
         if (request.getMetodoPagamento() == null) {
-            return true; // Deixa outras validações lidarem com campo vazio
+            return true;
         }
 
         boolean isCartao = request.getMetodoPagamento().equalsIgnoreCase("cartao_credito") ||

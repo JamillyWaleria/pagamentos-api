@@ -39,16 +39,29 @@ public class PagamentoService {
     }
 
     public Pagamento atualizarStatus(Long id, StatusPagamentoRequest request) {
+
         Pagamento pagamento = pagamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pagamento não encontrado"));
+
         StatusPagamento novoStatus = StatusPagamento.valueOf(request.getNovoStatus());
 
         if (pagamento.getStatus() == StatusPagamento.PROCESSADO_SUCESSO) {
-            throw new IllegalStateException("Pagamento já processado com sucesso");
+            throw new IllegalStateException("Pagamento já processado com sucesso, não pode ser alterado.");
         }
 
-        if (pagamento.getStatus() == StatusPagamento.PROCESSADO_FALHA && novoStatus != StatusPagamento.PENDENTE) {
-            throw new IllegalStateException("Pagamento falho só pode voltar para pendente");
+        if (pagamento.getStatus() == StatusPagamento.PROCESSADO_FALHA) {
+
+            if (novoStatus != StatusPagamento.PENDENTE) {
+                throw new IllegalStateException("Pagamento com falha só pode voltar para 'Pendente de Processamento'.");
+            }
+        }
+
+        if (pagamento.getStatus() == StatusPagamento.PENDENTE) {
+
+            if (novoStatus != StatusPagamento.PROCESSADO_SUCESSO && novoStatus != StatusPagamento.PROCESSADO_FALHA) {
+                throw new IllegalStateException(
+                        "Pagamento pendente só pode ser alterado para 'Processado com Sucesso' ou 'Processado com Falha'.");
+            }
         }
 
         pagamento.setStatus(novoStatus);
